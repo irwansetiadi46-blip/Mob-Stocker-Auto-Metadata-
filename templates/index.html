@@ -1,1 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mob Stocker Metadata - AI Metadata Generator for Microstock</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
 
+        body {
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+            color: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 1300px;
+            background: rgba(20, 20, 25, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            display: flex;
+            flex-direction: column;
+            max-height: 95vh;
+        }
+
+        .header {
+            padding: 20px 24px;
+            background: linear-gradient(135deg, #0f0f14, #15152a);
+            text-align: center;
+            border-bottom: 1px solid #2a2a35;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #6366f1, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .header .tagline {
+            font-size: 0.7rem;
+            color: #6366f1;
+            margin-top: 4px;
+            letter-spacing: 2px;
+        }
+
+        /* Layout 3 Kolom */
+        .three-columns {
+            display: flex;
+            gap: 20px;
+            padding: 20px 24px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* Kolom Kiri */
+        .column-left {
+            flex: 1.2;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Kolom Tengah */
+        .column-center {
+            flex: 1.5;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Kolom Kanan */
+        .column-right {
+            flex: 1.3;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            background: #0f0f14;
+            border: 2px dashed #2a2a35;
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-area:hover {
+            border-color: #6366f1;
+            background: #18181b;
+        }
+
+        .upload-area.highlight {
+            border-color: #10b981;
+            background: #1a2a1a;
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+
+        .upload-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #f4f4f5;
+            margin-bottom: 4px;
+        }
+
+        .batch-info {
+            font-size: 0.65rem;
+            color: #52525b;
+            margin-bottom: 12px;
+        }
+
+        .btn-upload {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-upload:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-upload:active {
+            transform: scale(0.96);
+        }
+
+        /* API Section */
+        .api-section {
+            background: #0f0f14;
+            border-radius: 16px;
+            padding: 14px;
+            border: 1px solid #2a2a35;
+        }
+
+        .api-section label {
+            font-size: 0.7rem;
+            color: #a1a1aa;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .api-input {
+            width: 100%;
+            background: #09090b;
+            border: 1px solid #2a2a35;
+            border-radius: 10px;
+            padding: 10px 12px;
+            color: #f4f4f5;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+        }
+
+        .api-input:focus {
+            border-color: #6366f1;
+            outline: none;
+        }
+
+        .btn-save {
+            width: 100%;
+            background: #2a2a35;
+            border: none;
+            padding: 8px;
+            border-radius: 40px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+
+        .btn-save:hover {
+            background: #3a3a45;
+        }
+
+        .api-link {
+            font-size: 0.65rem;
+            color: #818cf8;
+            text-decoration: none;
+        }
+
+        .api-link:hover {
+            text-decoration: underline;
+        }
+
+        .model-select {
+            width: 100%;
+            background: #0f0f14;
+            border: 1px solid #2a2a35;
+            border-radius: 10px;
+            padding: 10px;
+            color: #f4f4f5;
+            font-size: 0.75rem;
+            margin-top: 8px;
+        }
+
+        /* Files List */
+        .files-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 450px;
+            overflow-y: auto;
+        }
+
+        .file-card {
+            background: #0f0f14;
+            border: 1px solid #2a2a35;
+            border-radius: 16px;
+            padding: 12px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .file-card.active {
+            border-color: #10b981;
+            background: #1a2a1a;
+        }
+
+        .file-card .file-preview {
+            width: 60px;
+            height: 60px;
+            background: #09090b;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .file-card .file-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .file-card .file-preview .eps-icon {
+            font-size: 1.8rem;
+            color: #818cf8;
+        }
+
+        .file-card .file-info {
+            flex: 1;
+        }
+
+        .file-card .file-name {
+            font-size: 0.75rem;
+            color: #f4f4f5;
+            font-weight: 500;
+            margin-bottom: 4px;
+            word-break: break-all;
+        }
+
+        .file-card .file-type {
+            display: inline-block;
+            font-size: 0.55rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: #2a2a35;
+            margin-right: 8px;
+        }
+
+        .file-card .file-type.eps {
+            background: #4f46e5;
+        }
+
+        .file-card .file-type.jpg {
+            background: #10b981;
+        }
+
+        .file-card .status-badge {
+            font-size: 0.55rem;
+            color: #10b981;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Metadata Form */
+        .metadata-form {
+            background: #0f0f14;
+            border-radius: 20px;
+            padding: 16px;
+            border: 1px solid #2a2a35;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            font-size: 0.7rem;
+            color: #a1a1aa;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            background: #09090b;
+            border: 1px solid #2a2a35;
+            border-radius: 12px;
+            padding: 10px 12px;
+            color: #f4f4f5;
+            font-size: 0.8rem;
+            outline: none;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: #6366f1;
+        }
+
+        .counter {
+            font-size: 0.55rem;
+            color: #52525b;
+            text-align: right;
+            margin-top: 2px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .status-msg {
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 8px;
+            border-radius: 40px;
+            background: #0f0f14;
+            margin-top: 8px;
+        }
+
+        .file-count-info {
+            font-size: 0.65rem;
+            color: #10b981;
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        /* Info & Footer */
+        .info-section {
+            background: linear-gradient(135deg, #0f0f14, #15152a);
+            border-radius: 20px;
+            padding: 16px;
+            margin: 0 24px 16px 24px;
+            border: 1px solid #2a2a35;
+        }
+
+        .info-section h4 {
+            color: #c084fc;
+            font-size: 0.75rem;
+            margin-bottom: 8px;
+            margin-top: 12px;
+        }
+
+        .info-section h4:first-child {
+            margin-top: 0;
+        }
+
+        .info-section p, .info-section li {
+            font-size: 0.65rem;
+            color: #a1a1aa;
+            line-height: 1.5;
+        }
+
+        .info-section ul {
+            padding-left: 18px;
+            margin: 6px 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 12px;
+            background: #0a0a0f;
+            border-radius: 16px;
+            margin: 0 24px 20px 24px;
+        }
+
+        .footer .designer {
+            font-size: 0.65rem;
+            color: #6366f1;
+            font-weight: 500;
+        }
+
+        .footer .copyright {
+            font-size: 0.55rem;
+            color: #52525b;
+            margin-top: 4px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #18181b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3f3f46;
+            border-radius: 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .three-columns {
+                flex-direction: column;
+            }
+            .main-container {
+                max-height: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1>MOB STOCKER</h1>
+            <div class="tagline">AI-POWERED XMP INJECTOR · JPG + EPS</div>
+        </div>
+
+        <!-- 3 KOLOM LAYOUT -->
+        <div class="three-columns">
+            
+            <!-- KOLOM KIRI: Upload + API Settings -->
+            <div class="column-left">
+                <!-- Upload Area -->
+                <div class="upload-area" id="upload-area">
+                    <div class="upload-icon">📸</div>
+                    <div class="upload-title">UPLOAD FILE</div>
+                    <div class="batch-info">Batch Max 10 File in one session</div>
+                    <button class="btn-upload" onclick="event.stopPropagation(); document.getElementById('file-input').click()">
+                        📁 Pilih File
+                    </button>
+                </div>
+                <input type="file" id="file-input" multiple accept="image/jpeg,image/jpg,image/png,.eps" style="display: none;" onchange="handleFileSelect(this)">
+                
+                <div id="file-count-info" class="file-count-info" style="display: none;"></div>
+
+                <!-- API Settings -->
+                <div class="api-section">
+                    <label>🔑 API KEY</label>
+                    <input type="password" id="api-key" class="api-input" placeholder="Input API Key">
+                    <button class="btn-save" onclick="saveApiKey()">SAVE</button>
+                    <a href="https://aistudio.google.com/" target="_blank" class="api-link">Get API Key from Google →</a>
+                    
+                    <label style="margin-top: 12px;">🤖 MODEL</label>
+                    <select id="model-name" class="model-select">
+                        <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash-Lite (Fastest, Free)</option>
+                        <option value="gemini-2.0-flash">Gemini 2.0 Flash (Balanced)</option>
+                        <option value="gemini-2.5-flash-preview">Gemini 2.5 Flash-Preview (Latest)</option>
+                        <option value="gemini-2.5-pro">Gemini 2.5 Pro (Most Powerful)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- KOLOM TENGAH: Preview Files -->
+            <div class="column-center">
+                <div class="files-list" id="files-list">
+                    <div style="text-align:center;color:#52525b;padding:20px;">
+                        No files selected<br>
+                        Click upload button to add files
+                    </div>
+                </div>
+            </div>
+
+            <!-- KOLOM KANAN: Metadata Form + Actions -->
+            <div class="column-right">
+                <div class="metadata-form">
+                    <div class="form-group">
+                        <label>📌 TITLE (max 100 chars)</label>
+                        <input type="text" id="title" maxlength="100" placeholder="Enter title..." oninput="updateTitleCounter()">
+                        <div class="counter" id="title-counter">0/100</div>
+                    </div>
+                    <div class="form-group">
+                        <label>📝 DESCRIPTION (max 150 chars)</label>
+                        <input type="text" id="description" maxlength="150" placeholder="Enter description..." oninput="updateDescCounter()">
+                        <div class="counter" id="desc-counter">0/150</div>
+                    </div>
+                    <div class="form-group">
+                        <label>🏷️ KEYWORDS (max 49 keywords, pisah dengan koma)</label>
+                        <textarea id="keywords" rows="2" placeholder="keyword1,keyword2,keyword3" oninput="updateKeywordCounter()"></textarea>
+                        <div class="counter" id="keyword-counter">0/49 keywords</div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-primary" id="generate-btn" onclick="generateWithGemini()">🚀 START GENERATE</button>
+                    <button class="btn-primary" id="process-btn" onclick="executeProcess()">💾 EMBED</button>
+                </div>
+
+                <div id="status" class="status-msg">Ready to process your files</div>
+            </div>
+        </div>
+
+        <!-- Info Section -->
+        <div class="info-section">
+            <h4>📖 Tentang Mob Stocker</h4>
+            <p>Alat untuk kontributor microstock yang ingin menghemat waktu mengisi metadata (title, description, keywords) secara otomatis menggunakan AI, lalu <strong>embed langsung ke file</strong> (bukan sidecar).</p>
+            
+            <h4>🖼️ Format Didukung</h4>
+            <ul>
+                <li><strong>JPG / PNG</strong> → XMP injected langsung ke file</li>
+                <li><strong>EPS</strong> → XMP injected langsung via manipulasi teks PostScript</li>
+            </ul>
+            
+            <h4>🚀 Cara Penggunaan</h4>
+            <ul>
+                <li>1. Masukkan Gemini API key → klik SAVE</li>
+                <li>2. Klik tombol <strong>📁 Pilih File</strong> atau drag & drop area upload</li>
+                <li>3. Upload file (max 10, JPG/PNG/EPS)</li>
+                <li>4. Klik <strong>START GENERATE</strong> (AI auto-analyze gambar)</li>
+                <li>5. Atau isi manual di form metadata</li>
+                <li>6. Klik <strong>EMBED</strong> → metadata akan di-embed ke file</li>
+                <li>7. File siap upload ke Shutterstock/Adobe Stock</li>
+            </ul>
+            
+            <h4>📏 Batasan Metadata</h4>
+            <ul>
+                <li>Title: max 100 karakter</li>
+                <li>Description: max 150 karakter</li>
+                <li>Keywords: max 49 keywords</li>
+            </ul>
+            
+            <h4>⚙️ Teknologi</h4>
+            <ul>
+                <li>Google Gemini AI Vision</li>
+                <li>Python Flask + Pillow</li>
+                <li>XMP Dublin Core Schema</li>
+                <li>PostScript Manipulation for EPS</li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="designer">⚡ MOB STOCKER METADATA — Desainer: Irwan Setiadi</div>
+            <div class="copyright">© 2024 — Untuk Kontributor Microstock | Embed langsung ke file, bukan sidecar</div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFiles = [];
+        let currentMetadata = { title: '', description: '', keywords: '' };
+        let apiKeySaved = localStorage.getItem('gemini_api_key') || '';
+
+        // Load saved API key
+        if (apiKeySaved) {
+            document.getElementById('api-key').value = apiKeySaved;
+        }
+
+        // Drag & Drop setup
+        const uploadArea = document.getElementById('upload-area');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.add('highlight'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('highlight'), false);
+        });
+
+        uploadArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = Array.from(dt.files);
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            if (files.length > 10) {
+                alert("Maximum 10 files per batch!");
+                return;
+            }
+            selectedFiles = files;
+            renderFileList();
+            updateFileCount();
+            generatePreviews();
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('api-key').value.trim();
+            if (key) {
+                localStorage.setItem('gemini_api_key', key);
+                showStatus('API Key saved!', '#10b981');
+            } else {
+                showStatus('Please enter API Key', '#ef4444');
+            }
+        }
+
+        function showStatus(msg, color) {
+            const status = document.getElementById('status');
+            status.innerHTML = msg;
+            status.style.color = color;
+            setTimeout(() => {
+                if (status.innerHTML === msg) status.innerHTML = 'Ready';
+            }, 3000);
+        }
+
+        function updateTitleCounter() {
+            let len = document.getElementById('title').value.length;
+            document.getElementById('title-counter').innerHTML = `${len}/100`;
+            if (len > 100) {
+                document.getElementById('title-counter').style.color = '#ef4444';
+            } else {
+                document.getElementById('title-counter').style.color = '#52525b';
+            }
+        }
+
+        function updateDescCounter() {
+            let len = document.getElementById('description').value.length;
+            document.getElementById('desc-counter').innerHTML = `${len}/150`;
+            if (len > 150) {
+                document.getElementById('desc-counter').style.color = '#ef4444';
+            } else {
+                document.getElementById('desc-counter').style.color = '#52525b';
+            }
+        }
+
+        function updateKeywordCounter() {
+            let val = document.getElementById('keywords').value;
+            let count = val.split(',').filter(k => k.trim().length > 0).length;
+            document.getElementById('keyword-counter').innerHTML = `${count}/49 keywords`;
+            if (count > 49) {
+                document.getElementById('keyword-counter').style.color = '#ef4444';
+            } else {
+                document.getElementById('keyword-counter').style.color = '#52525b';
+            }
+        }
+
+        function updateFileCount() {
+            const countDiv = document.getElementById('file-count-info');
+            if (selectedFiles.length > 0) {
+                countDiv.style.display = 'block';
+                countDiv.innerHTML = `📎 ${selectedFiles.length} file(s) selected (max 10)`;
+            } else {
+                countDiv.style.display = 'none';
+            }
+        }
+
+        function isEPSFile(filename) {
+            return filename.toLowerCase().endsWith('.eps');
+        }
+
+        function isImageFile(filename) {
+            return filename.toLowerCase().match(/\.(jpg|jpeg|png)$/);
+        }
+
+        async function generatePreviews() {
+            const imageFiles = selectedFiles.filter(f => isImageFile(f.name));
+            if (imageFiles.length === 0) return;
+
+            const formData = new FormData();
+            imageFiles.forEach(f => formData.append('files', f));
+
+            try {
+                const res = await fetch('/api/process-preview', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                if (data.previews) {
+                    data.previews.forEach(preview => {
+                        const fileIndex = selectedFiles.findIndex(f => f.name === preview.filename);
+                        if (fileIndex !== -1) {
+                            selectedFiles[fileIndex].preview = preview.preview_src;
+                        }
+                    });
+                    renderFileList();
+                }
+            } catch (err) {
+                console.error("Preview error:", err);
+            }
+        }
+
+        function renderFileList() {
+            const container = document.getElementById('files-list');
+            if (!selectedFiles.length) {
+                container.innerHTML = '<div style="text-align:center;color:#52525b;padding:20px;">No files selected.<br>Click upload button to add files</div>';
+                return;
+            }
+
+            container.innerHTML = selectedFiles.map((file, idx) => {
+                const isEPS = isEPSFile(file.name);
+                const isImage = isImageFile(file.name);
+                const fileType = isEPS ? 'EPS' : 'JPG';
+                const typeClass = isEPS ? 'eps' : 'jpg';
+                const previewHtml = isImage && file.preview ? 
+                    `<img src="${file.preview}" alt="preview">` : 
+                    `<div class="eps-icon">📁</div>`;
+                
+                return `
+                    <div class="file-card active">
+                        <div class="file-preview">
+                            ${previewHtml}
+                        </div>
+                        <div class="file-info">
+                            <div class="file-name" title="${file.name}">${file.name.length > 35 ? file.name.substring(0, 35) + '...' : file.name}</div>
+                            <div>
+                                <span class="file-type ${typeClass}">${fileType}</span>
+                                <span class="status-badge">● Active</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function handleFileSelect(input) {
+            const files = Array.from(input.files);
+            handleFiles(files);
+        }
+
+        async function generateWithGemini() {
+            const btn = document.getElementById('generate-btn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Generating...';
+            
+            if (selectedFiles.length === 0) {
+                showStatus('❌ Please select an image first!', '#ef4444');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                return;
+            }
+            
+            const imageFile = selectedFiles.find(f => isImageFile(f.name));
+            if (!imageFile) {
+                showStatus('❌ AI generation requires at least one JPG/PNG image!', '#ef4444');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                return;
+            }
+            
+            const apiKey = document.getElementById('api-key').value.trim();
+            if (!apiKey) {
+                showStatus('❌ Please enter and save Gemini API key!', '#ef4444');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                return;
+            }
+            
+            const modelName = document.getElementById('model-name').value;
+            
+            showStatus('🔄 Gemini AI is analyzing your image... (5-15 seconds)', '#6366f1');
+            
+            const formData = new FormData();
+            formData.append('file', imageFile);
+            formData.append('api_key', apiKey);
+            formData.append('model_name', modelName);
+            
+            try {
+                const response = await fetch('/api/generate-metadata', { method: 'POST', body: formData });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentMetadata = {
+                        title: (data.title || '').slice(0, 100),
+                        description: (data.description || '').slice(0, 150),
+                        keywords: data.keywords || ''
+                    };
+                    
+                    document.getElementById('title').value = currentMetadata.title;
+                    document.getElementById('description').value = currentMetadata.description;
+                    document.getElementById('keywords').value = currentMetadata.keywords;
+                    
+                    updateTitleCounter();
+                    updateDescCounter();
+                    updateKeywordCounter();
+                    
+                    showStatus('✅ Metadata generated successfully! Click EMBED to inject.', '#10b981');
+                } else {
+                    throw new Error(data.error || 'Generation failed');
+                }
+            } catch (err) {
+                showStatus(`❌ Gemini Error: ${err.message}`, '#ef4444');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        async function executeProcess() {
+            const btn = document.getElementById('process-btn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Embedding...';
+            
+            if (selectedFiles.length === 0) {
+                showStatus('❌ Please select files first!', '#ef4444');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                return;
+            }
+            
+            let title = document.getElementById('title').value.trim();
+            let description = document.getElementById('description').value.trim();
+            let keywords = document.getElementById('keywords').value.trim();
+            
+            if (!title || !description || !keywords) {
+                showStatus('❌ Please fill all metadata fields or generate with AI!', '#ef4444');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                return;
+            }
+            
+            showStatus(`🔄 Processing ${selectedFiles.length} file(s)...`, '#6366f1');
+            
+            let success = 0;
+            let failed = 0;
+            let imageCount = 0;
+            let epsCount = 0;
+            
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const file = selectedFiles[i];
+                const isEPS = isEPSFile(file.name);
+                const endpoint = isEPS ? '/api/inject-eps' : '/api/inject-jpg';
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('title', title);
+                formData.append('description', description);
+                formData.append('keywords', keywords);
+                
+                try {
+                    const response = await fetch(endpoint, { method: 'POST', body: formData });
+                    
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        
+                        if (isEPS) {
+                            const baseName = file.name.replace(/\.eps$/i, '');
+                            a.download = `${baseName}.eps`;
+                            epsCount++;
+                        } else {
+                            const cleanName = file.name.replace(/\s+/g, '_');
+                            a.download = `mobstock_${cleanName}`;
+                            imageCount++;
+                        }
+                        
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        success++;
+                        showStatus(`✅ ${success}/${selectedFiles.length} completed (JPG:${imageCount} EPS:${epsCount})`, '#10b981');
+                    } else {
+                        const errorData = await response.json();
+                        failed++;
+                        showStatus(`⚠️ ${success} success, ${failed} failed - ${errorData.error || 'unknown error'}`, '#f59e0b');
+                    }
+                } catch (err) {
+                    failed++;
+                    showStatus(`⚠️ Network error: ${failed} failed - ${err.message}`, '#ef4444');
+                }
+            }
+            
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            
+            if (success === selectedFiles.length) {
+                showStatus(`✨ COMPLETE! ${imageCount} JPG/PNG + ${epsCount} EPS downloaded with metadata ✨`, '#10b981');
+            } else if (success > 0) {
+                showStatus(`⚠️ Partial: ${success} success, ${failed} failed`, '#f59e0b');
+            } else {
+                showStatus(`❌ Failed to process all files. Check connection.`, '#ef4444');
+            }
+        }
+    </script>
+</body>
+                  </html>
